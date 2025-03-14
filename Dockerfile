@@ -24,7 +24,7 @@ RUN xcaddy build \
     --with github.com/stephenmiracle/frankenwp/sidekick/middleware/cache=./cache
 
 
-FROM wordpress:$WORDPRESS_VERSION as wp
+FROM roots/bedrock:latest as wp
 FROM dunglas/frankenphp:latest-php${PHP_VERSION} AS base
 
 LABEL org.opencontainers.image.title=FrankenWP
@@ -76,7 +76,7 @@ RUN install-php-extensions \
 RUN cp $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini
 COPY php.ini $PHP_INI_DIR/conf.d/wp.ini
 
-COPY --from=wp /usr/src/wordpress /usr/src/wordpress
+COPY --from=wp /var/www/html/web /var/www/html/web
 COPY --from=wp /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d/
 COPY --from=wp /usr/local/bin/docker-entrypoint.sh /usr/local/bin/
 
@@ -106,13 +106,13 @@ RUN { \
     } > $PHP_INI_DIR/conf.d/error-logging.ini
 
 
-WORKDIR /var/www/html
+WORKDIR /var/www/html/web
 
-VOLUME /var/www/html/wp-content
+VOLUME /var/www/html/web/app/uploads
 
 
-COPY wp-content/mu-plugins /var/www/html/wp-content/mu-plugins
-RUN mkdir /var/www/html/wp-content/cache
+COPY wp-content/mu-plugins /var/www/html/web/app/mu-plugins
+RUN mkdir /var/www/html/web/app/cache
 
 
 
@@ -124,7 +124,7 @@ RUN sed -i \
 
 
 # Add $_SERVER['ssl'] = true; when env USE_SSL = true is set to the wp-config.php file here: /usr/local/bin/wp-config-docker.php
-RUN sed -i 's/<?php/<?php if (!!getenv("FORCE_HTTPS")) { \$_SERVER["HTTPS"] = "on"; } define( "FS_METHOD", "direct" ); set_time_limit(300); /g' /usr/src/wordpress/wp-config-docker.php
+RUN sed -i 's/<?php/<?php if (!!getenv("FORCE_HTTPS")) { \$_SERVER["HTTPS"] = "on"; } define( "FS_METHOD", "direct" ); set_time_limit(300); /g' /var/www/html/web/wp-config-docker.php
 
 # Adding WordPress CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
@@ -141,7 +141,7 @@ RUN useradd -D ${USER} && \
 RUN chown -R ${USER}:${USER} /data/caddy && \
     chown -R ${USER}:${USER} /config/caddy && \
     chown -R ${USER}:${USER} /var/www/html && \
-    chown -R ${USER}:${USER} /usr/src/wordpress && \
+    chown -R ${USER}:${USER} /var/www/html/web && \
     chown -R ${USER}:${USER} /usr/local/bin/docker-entrypoint.sh
 
 USER $USER
