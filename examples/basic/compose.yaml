@@ -1,6 +1,6 @@
 services:
   wordpress:
-    image: wpeverywhere/frankenwp:latest-php8.3
+    image: roots/bedrock:latest-php8.3
     restart: always
     ports:
       - "8100:80" # HTTP
@@ -28,7 +28,7 @@ services:
           define('WP_HOME', 'http://localhost:8100');
           
     volumes:
-    #  - ./wp-content:/var/www/html/wp-content
+      - ./web/app/uploads:/var/www/html/web/app/uploads
 
     depends_on:
       - db

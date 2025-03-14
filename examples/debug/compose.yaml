@@ -1,6 +1,6 @@
 services:
   wordpress:
-    build: .
+    image: roots/bedrock:latest-php8.3
     restart: always
     ports:
       - "8099:80" # HTTP
@@ -29,8 +29,7 @@ services:
 
           
     volumes:
-      - ./test.php:/var/www/html/test.php
-    #  - ./wp-content:/var/www/html/wp-content
+      - ./web/app/uploads:/var/www/html/web/app/uploads
 
     depends_on:
       - db

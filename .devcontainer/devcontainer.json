@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "build": "docker build -t frankenwp .",
+    "test": "docker build -t frankenwp . && docker run --rm frankenwp",
+    "launch": "docker build -t wordpress-app . && docker run -p 80:80 wordpress-app"
+  }
+}
